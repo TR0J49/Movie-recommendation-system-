@@ -87,3 +87,20 @@ plt.ylabel('ratings',fontsize=30)
 
 plt.bar(rating_count_20.index,rating_count_20.rating,color='red')
 
+cv=TfidfVectorizer()
+tfidf_matrix=cv.fit_transform(movies['genres'])
+movie_user = df.pivot_table(index='userId',columns='title',values='rating')
+movie_user.head()
+
+cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
+indices=pd.Series(movies.index,index=movies['title'])
+titles=movies['title']
+def recommendations(title):
+    idx = indices[title]
+    sim_scores = list(enumerate(cosine_sim[idx]))
+    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+    sim_scores = sim_scores[1:21]
+    movie_indices = [i[0] for i in sim_scores]
+    return titles.iloc[movie_indices]
+    
+recommendations('Toy Story (1995)')
